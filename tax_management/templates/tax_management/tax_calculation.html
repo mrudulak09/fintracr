@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Tax Calculation Results</h2>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tax Year {{ calculation.year }}</h5>
+                    <p>Total Income: ${{ calculation.total_income }}</p>
+                    <p>Total Deductions: ${{ calculation.total_deductions }}</p>
+                    <p>Taxable Income: ${{ calculation.taxable_income }}</p>
+                    <p>Tax Liability: ${{ calculation.tax_liability }}</p>
+                    <small>Calculated on: {{ calculation.calculated_at }}</small>
+                </div>
+            </div>
+            <a href="{% url 'tax_management:dashboard' %}" class="btn btn-primary mt-3">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">AI Financial Calculator</h1>
+        <a href="{% url 'ai_features:dashboard' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- AI Calculator Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Smart Financial Calculator</h6>
+        </div>
+        <div class="card-body">
+            <p class="mb-4">Ask any financial question or calculation in natural language. Examples:</p>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Example:</small>
+                            <p class="mb-0">"What's my monthly payment for a ₹300,000 mortgage at 5.5% interest for 30 years?"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Example:</small>
+                            <p class="mb-0">"If I invest ₹500 monthly with 8% annual return, how much will I have after 20 years?"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Example:</small>
+                            <p class="mb-0">"What's 15% tip on a ₹78.50 bill, and how much is the total with tax at 8.25%?"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="calculator-form" method="post" action="{% url 'ai_features:calculate' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="query" name="query" 
+                               placeholder="Type your financial calculation or question..." required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" id="calculate-btn">
+                                <i class="fas fa-calculator"></i> Calculate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Loading Indicator -->
+            <div id="loading" class="text-center my-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Calculating...</span>
+                </div>
+                <p class="mt-2">Our AI is processing your request...</p>
+            </div>
+            
+            <!-- Calculation Result -->
+            <div id="calculation-result" class="mt-4 d-none">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="h5 mb-0 font-weight-bold text-success" id="result-value"></div>
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Result
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow mt-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Explanation</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="explanation-text"></div>
+                    </div>
+                </div>
+                
+                <div class="card shadow mt-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-info">Financial Insights</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul id="insights-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Calculations -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Calculations</h6>
+        </div>
+        <div class="card-body">
+            {% if recent_calculations %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Query</th>
+                                <th>Result</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calc in recent_calculations %}
+                                <tr class="calculation-row" 
+                                    data-query="{{ calc.query }}" 
+                                    data-result="{{ calc.result }}" 
+                                    data-explanation="{{ calc.explanation }}" 
+                                    data-insights='{{ calc.insights|safe }}' 
+                                    style="cursor: pointer;">
+                                    <td>{{ calc.query }}</td>
+                                    <td>{{ calc.result }}</td>
+                                    <td>{{ calc.created_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p>No calculations yet. Try the calculator above to see your results here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('calculator-form');
+    const loadingIndicator = document.getElementById('loading');
+    const resultSection = document.getElementById('calculation-result');
+    const resultValue = document.getElementById('result-value');
+    const explanationText = document.getElementById('explanation-text');
+    const insightsList = document.getElementById('insights-list');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading indicator
+        loadingIndicator.classList.remove('d-none');
+        resultSection.classList.add('d-none');
+        
+        // Get form data
+        const formData = new FormData(form);
+        
+        // Send AJAX request
+        fetch('{% url "ai_features:calculate" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading indicator
+            loadingIndicator.classList.add('d-none');
+            
+            if (data.error) {
+                alert('Error: ' + data.error);
+                return;
+            }
+            
+            // Update result - ensure it uses ₹ instead of $
+            resultValue.textContent = data.result.replace('$', '₹');
+            explanationText.innerHTML = data.explanation.replace(/\$/g, '₹').replace(/\n/g, '<br>');
+            
+            // Update insights
+            insightsList.innerHTML = '';
+            if (data.insights && data.insights.length > 0) {
+                data.insights.forEach(insight => {
+                    const li = document.createElement('li');
+                    li.textContent = insight.replace('$', '₹');
+                    insightsList.appendChild(li);
+                });
+            } else {
+                insightsList.innerHTML = '<li>No additional insights available.</li>';
+            }
+            
+            // Show result section
+            resultSection.classList.remove('d-none');
+            
+            // Reload page to update recent calculations (or update the table directly)
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        })
+        .catch(error => {
+            loadingIndicator.classList.add('d-none');
+            alert('An error occurred: ' + error);
+        });
+    });
+    
+    // Make recent calculation rows clickable to show details
+    const calculationRows = document.querySelectorAll('.calculation-row');
+    calculationRows.forEach(row => {
+        row.addEventListener('click', function() {
+            const query = this.dataset.query;
+            const result = this.dataset.result.replace(/\$/g, '₹');
+            const explanation = this.dataset.explanation.replace(/\$/g, '₹');
+            let insights = [];
+            
+            try {
+                // Check if insights is already a valid array
+                if (Array.isArray(this.dataset.insights)) {
+                    insights = this.dataset.insights.map(item => item.replace(/\$/g, '₹'));
+                } else if (typeof this.dataset.insights === 'string') {
+                    // Try parsing as JSON string
+                    if (this.dataset.insights.trim().startsWith('[')) {
+                        insights = JSON.parse(this.dataset.insights).map(item => 
+                            typeof item === 'string' ? item.replace(/\$/g, '₹') : item
+                        );
+                    } else {
+                        insights = [this.dataset.insights.replace(/\$/g, '₹')];
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing insights:", e);
+                insights = ["No additional insights available."];
+            }
+            
+            // Update the form input
+            document.getElementById('query').value = query.replace(/\$/g, '₹');
+            
+            // Update result section
+            resultValue.textContent = result;
+            explanationText.innerHTML = explanation.replace(/\n/g, '<br>');
+            
+            // Update insights
+            insightsList.innerHTML = '';
+            if (insights && insights.length > 0) {
+                insights.forEach(insight => {
+                    const li = document.createElement('li');
+                    li.textContent = insight;
+                    insightsList.appendChild(li);
+                });
+            } else {
+                insightsList.innerHTML = '<li>No additional insights available.</li>';
+            }
+            
+            // Show result section
+            resultSection.classList.remove('d-none');
+        });
+    });
+});
+</script>
+{% endblock %} 

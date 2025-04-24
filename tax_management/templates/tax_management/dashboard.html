@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Tax Management Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Tax Profile</h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5>Filing Status: {{ profile.get_filing_status_display }}</h5>
+                    <p>Tax ID: {{ profile.tax_id }}</p>
+                    <a href="{% url 'tax_management:update_profile' %}" class="btn btn-primary">Update Profile</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <h3>Recent Calculations</h3>
+            {% for calc in recent_calculations %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>Tax Year {{ calc.year }}</h5>
+                        <p>Total Income: ${{ calc.total_income }}</p>
+                        <p>Tax Liability: ${{ calc.tax_liability }}</p>
+                        <small>Calculated: {{ calc.calculated_at|date }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-md-4">
+            <h3>Tax Planning Suggestions</h3>
+            {% for suggestion in deduction_suggestions %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p>{{ suggestion }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
