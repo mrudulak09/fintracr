@@ -5,9 +5,87 @@
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Year Overview</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                class="fas fa-download fa-sm text-white-50"></i> Generate Annual Report</a>
     </div>
 
     {% if make_calls %}
+        <!-- Financial Summary Cards -->
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Annual Income</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_annual_income">Loading...</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Annual Expenses</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_annual_expenses">Loading...</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money fa-2x text-gray-300"><span>₹</span></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Savings Rate</div>
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-auto">
+                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id="savings_rate">Loading...</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="progress progress-sm mr-2">
+                                            <div class="progress-bar bg-info" role="progressbar" id="savings_progress"
+                                                style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-piggy-bank fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Net Worth Change</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="net_worth_change">Loading...</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row d-none d-md-block" id="year_chart">
             <div class="col-12">
@@ -34,6 +112,22 @@
                     <div class="card-body">
                         <div class="chart-area">
                             <canvas id="year_chart_canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Income vs Expenses Comparison -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Income vs Expenses</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="monthly_comparison_chart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -99,7 +193,35 @@
             </div>
         </div>
 
-        <div class="row d-none d-md-block" id="year_chart">
+        <!-- Top Expenses Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Top Expense Categories</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="top_expenses_table" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>% of Total</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top_expenses_body">
+                                    <!-- Will be filled by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row d-none d-md-block">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
@@ -130,8 +252,91 @@
             </div>
         </div>
 
+        <!-- Financial Goals Progress -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Financial Goals Progress</h6>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="small font-weight-bold">Emergency Fund <span class="float-right">60%</span></h4>
+                        <div class="progress mb-4">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h4 class="small font-weight-bold">Vacation Savings <span class="float-right">40%</span></h4>
+                        <div class="progress mb-4">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h4 class="small font-weight-bold">Home Renovation <span class="float-right">20%</span></h4>
+                        <div class="progress mb-4">
+                            <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h4 class="small font-weight-bold">Investment Goal <span class="float-right">80%</span></h4>
+                        <div class="progress mb-4">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <h4 class="small font-weight-bold">Debt Reduction <span class="float-right">Complete!</span></h4>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Health Indicators Card -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Financial Health Indicators</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="card bg-light text-black shadow">
+                                    <div class="card-body">
+                                        Debt-to-Income Ratio
+                                        <div class="mt-2 text-center h5" id="debt_income_ratio">25%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-light text-black shadow">
+                                    <div class="card-body">
+                                        Savings Rate
+                                        <div class="mt-2 text-center h5" id="savings_rate_card">15%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-light text-black shadow">
+                                    <div class="card-body">
+                                        Emergency Fund
+                                        <div class="mt-2 text-center h5" id="emergency_fund">3 months</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card bg-light text-black shadow">
+                                    <div class="card-body">
+                                        Investment Allocation
+                                        <div class="mt-2 text-center h5" id="investment_alloc">20%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-        No data
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">No Financial Data Available!</h4>
+            <p>There is currently no financial data available for the year overview. Please add transactions to view your annual financial summary.</p>
+            <hr>
+            <p class="mb-0">You can add new transactions from the Transactions page.</p>
+        </div>
     {% endif %}
 
 {% endblock %}
@@ -143,7 +348,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"
                 integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q=="
                 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="{% static 'js/my_finances/common_chart.js' %}"></script>
-        <script src="{% static 'js/my_finances/year_overview_chart.js' %}"></script>
+        <script src="{% static 'js/my_finances/common_chart.js' %}?v={% now 'U' %}"></script>
+        <script src="{% static 'js/my_finances/year_overview_chart.js' %}?v={% now 'U' %}"></script>
     {% endif %}
 {% endblock %}

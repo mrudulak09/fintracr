@@ -78,10 +78,10 @@
                     ticks: {
                         maxTicksLimit: 5,
                         padding: 10,
-                        // Include a dollar sign in the ticks
+                        // Include a rupee sign in the ticks
                         callback: function (value, index, values) {
-                            return new Intl.NumberFormat('en-US', {
-                                style: 'currency', currency: 'USD',
+                            return new Intl.NumberFormat('en-IN', {
+                                style: 'currency', currency: 'INR',
                                 maximumSignificantDigits: 1
                             }).format(value);
                         }

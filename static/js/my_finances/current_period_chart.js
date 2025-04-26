@@ -7,7 +7,7 @@ $(document).ready(function () {
                 $(`#${data_name}`).html(v)
             } else {
                 $(`#${data_name}`).html(
-                    new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(v)
+                    new Intl.NumberFormat('en-IN', {style: 'currency', currency: 'INR'}).format(v)
                 )
             }
         }
