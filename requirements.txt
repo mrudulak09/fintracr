@@ -54,5 +54,4 @@ urllib3==1.26.15
 whitenoise==6.4.0
 wrapt==1.14.1
 yarl==1.9.1
-gunicorn==23.0.0
 twilio==9.5.2
